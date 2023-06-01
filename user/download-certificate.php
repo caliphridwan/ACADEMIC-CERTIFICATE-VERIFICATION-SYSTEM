@@ -1,0 +1,105 @@
+<?php
+namespace Dompdf;
+require_once '../admin/dompdf/autoload.inc.php';
+ob_start();
+$con=mysqli_connect("localhost", "root", "", "obcsdb");
+if(mysqli_connect_errno()){
+echo "Connection Fail".mysqli_connect_error();
+}
+
+?>
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Academic Certificate</title>
+<style>
+table, th, td {
+  border: 1px solid;
+}
+body{
+  /* background-image: url("../img/cert2.webp") */
+}
+</style>
+</head>
+<body>
+<h2 align="center">Academic Certificate  Details</h2>
+
+	<?php 
+
+$cid=intval($_GET['cid']);
+	$ret=mysqli_query($con,"SELECT tblapplication.*,tbluser.FirstName,tbluser.LastName,tbluser.MobileNumber,tbluser.Address from  tblapplication join  tbluser on tblapplication.UserID=tbluser.ID where tblapplication.ApplicationID='$cid'");
+
+while ($row=mysqli_fetch_array($ret)) { ?>
+<h3>Application / Certificate Number: <?php  echo $row['ApplicationID'];?></h3>
+<table  align="center" border="1" width="100%">
+
+<tr>
+    <th width="150">Full Name</th>
+    <td width="250"><?php  echo $row['FullName'];?></td>
+    <th width="150">Gender</th>
+    <td><?php  echo $row['Gender'];?></td>
+  </tr>
+   <tr>
+    <th scope>Date of Birth</th>
+    <td><?php  echo $row['DateofBirth'];?></td>
+    <th scope>Course of Study</th>
+    <td><?php  echo $row['PlaceofBirth'];?></td>
+  </tr>
+</table>
+
+  <table  align="center" border="1" width="100%" style="margin-top:3%;">
+  <tr>
+    <th width="150">Faculty</th>
+    <td width="250"><?php  echo $row['NameOfMother'];?></td>
+       <th width="150">Institution Attended</th>
+    <td><?php  echo $row['NameofFather'];?></td>
+
+  </tr>
+   <tr>
+<th scope>Permanent Address </th>
+    <td><?php  echo $row['PermanentAdd'];?></td>
+    <th scope>Postal Address</th>
+    <td><?php  echo $row['PostalAdd'];?></td>
+
+  </tr>
+   <tr>
+        <th scope>Parents Mobile Number</th>
+    <td><?php  echo $row['MobileNumber'];?></td>
+    <th scope>Parents Email</th>
+    <td><?php  echo $row['Email'];?></td>
+
+  </tr>
+
+
+</table>
+
+<table  align="center" border="1" width="100%" style="margin-top:3%;">
+<tr>
+	    <th width="150">Certificate Number</th>
+    <td><?php  echo $row['ApplicationID'];?></td>
+    <th >Application Date</th>
+    <td><?php  echo $row['Dateofapply'];?></td>
+
+  </tr>
+   <tr>
+    <th width="150">Issued Date</th>
+    <td><?php  echo $row['UpdationDate'];?></td>
+  </tr>
+</table>
+
+<?php } ?>
+
+<p>THIS IS A COMPUTER GENERATED VERIFIED ACADEMIC CERTIFICATE. </p>
+</body>
+</html>
+<?php
+$html = ob_get_clean();
+$dompdf = new DOMPDF();
+$dompdf->setPaper('A4', 'landscape');
+$dompdf->load_html($html);
+$dompdf->render();
+//For view
+//$dompdf->stream("",array("Attachment" => false));
+// for download
+$dompdf->stream("Verified-Academic-Certificate.pdf");
+?>
